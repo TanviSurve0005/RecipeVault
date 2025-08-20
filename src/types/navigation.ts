@@ -2,9 +2,12 @@ import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-naviga
 
 export type RootStackParamList = {
   RecipeList: undefined;
-  RecipeDetail: { id: string };
+  RecipeDetail: { 
+    id: string;
+    title: string;
+  };
   AddRecipe: undefined;
-  EditRecipe: { id: string }; // Add this if you need edit functionality
+  EditRecipe: { id: string }; 
 };
 
 export type RecipeListNavigationProp = NativeStackNavigationProp<

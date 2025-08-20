@@ -3,8 +3,8 @@ export const API_CONFIG = {
   mode: 'rest' as 'graphql' | 'rest',
   
   // API endpoints
-  graphqlEndpoint: 'http://localhost:3000/graphql', // Your GraphQL endpoint
-  restEndpoint: 'http://localhost:3001/api', // Your REST endpoint
+  graphqlEndpoint: 'http://localhost:3000/graphql',
+  restEndpoint: 'http://localhost:3001/api',
   
   // Timeout settings
   timeout: 10000,

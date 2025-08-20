@@ -12,7 +12,7 @@ export default function RootNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#f4511e',
+          backgroundColor: '#FF6B35',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
@@ -30,7 +30,9 @@ export default function RootNavigator() {
       <Stack.Screen 
         name="RecipeDetail" 
         component={RecipeDetail}
-        options={({ route }) => ({ title: route.params.id })}
+        options={({ route }) => ({ 
+          title: route.params.title || 'Recipe Details'
+        })}
       />
       <Stack.Screen 
         name="AddRecipe" 

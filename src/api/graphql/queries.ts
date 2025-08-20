@@ -2,7 +2,6 @@ import { Recipe, RecipeFormData } from '../../types/Recipe';
 import { API_CONFIG } from '../../config/api';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
-// Initialize Apollo Client
 export const apolloClient = new ApolloClient({
   uri: API_CONFIG.graphqlEndpoint,
   cache: new InMemoryCache(),
@@ -16,7 +15,6 @@ export const apolloClient = new ApolloClient({
   },
 });
 
-// GraphQL Queries and Mutations
 const GET_RECIPES = gql`
   query GetRecipes {
     recipes {
@@ -98,7 +96,6 @@ const DELETE_RECIPE = gql`
   }
 `;
 
-// GraphQL API functions
 export const graphqlApi = {
   // Get all recipes
   getAll: async (): Promise<{ recipes: Recipe[]; total: number }> => {
@@ -113,7 +110,6 @@ export const graphqlApi = {
     };
   },
 
-  // Get single recipe
   getById: async (id: string): Promise<Recipe> => {
     const { data } = await apolloClient.query({
       query: GET_RECIPE,
@@ -124,7 +120,6 @@ export const graphqlApi = {
     return data.recipe;
   },
 
-  // Create new recipe
   create: async (recipeData: RecipeFormData): Promise<Recipe> => {
     const { data } = await apolloClient.mutate({
       mutation: CREATE_RECIPE,
@@ -134,7 +129,6 @@ export const graphqlApi = {
     return data.createRecipe;
   },
 
-  // Update recipe
   update: async (id: string, recipeData: Partial<RecipeFormData>): Promise<Recipe> => {
     const { data } = await apolloClient.mutate({
       mutation: UPDATE_RECIPE,
