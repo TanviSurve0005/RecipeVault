@@ -14,17 +14,17 @@ const UsersIcon = () => <Ionicons name="people-outline" size={16} color="#666" /
 const EditIcon = () => <Ionicons name="create-outline" size={16} color="#007AFF" />;
 const DeleteIcon = () => <Ionicons name="trash-outline" size={16} color="#FF3B30" />;
 const AddIcon = () => <Ionicons name="add-circle" size={20} color="white" />;
-const SearchIcon = () => <Ionicons name="search" size={20} color="white" />;
+const SearchIcon = () => <Ionicons name="search" size={20} color="white" marginRight="$8"/>;
 const CloseIcon = () => <Ionicons name="close" size={24} color="white" />;
 
 const { width } = Dimensions.get('window');
-const isSmallDevice = width < 375;
+const isSmallDevice = width < 550;
 
 export default function RecipeList() {
   const navigation = useNavigation<RecipeListScreenProps['navigation']>();
   const route = useRoute();
   const headerHeight = useHeaderHeight();
-  
+
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +39,7 @@ export default function RecipeList() {
 
   useEffect(() => {
     loadRecipes();
-    
-    // Enhanced search button in header
+
     navigation.setOptions({
       headerRight: () => (
         <Button
@@ -48,9 +47,9 @@ export default function RecipeList() {
           circular
           onPress={() => setShowSearch(true)}
           icon={<SearchIcon />}
-          backgroundColor="rgba(255,255,255,0.2)"
-          hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
-          pressStyle={{ backgroundColor: 'rgba(255,255,255,0.4)' }}
+          backgroundColor="rgba(255,255,255,0.25)"
+          hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.35)', transform: [{ scale: 1.05 }] }}
+          pressStyle={{ backgroundColor: 'rgba(255,255,255,0.4)', transform: [{ scale: 0.95 }] }}
           animation="quick"
         />
       ),
@@ -59,7 +58,8 @@ export default function RecipeList() {
       },
       headerTintColor: '#fff',
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontWeight: '800',
+        fontSize: 20,
       },
     });
   }, []);
@@ -69,7 +69,6 @@ export default function RecipeList() {
   }, [searchQuery, recipes]);
 
   useEffect(() => {
-    // Enhanced search bar in header
     if (showSearch) {
       navigation.setOptions({
         headerTitle: () => (
@@ -79,29 +78,24 @@ export default function RecipeList() {
             onChangeText={setSearchQuery}
             autoFocus={true}
             width={isSmallDevice ? '80%' : '85%'}
-            backgroundColor="rgba(255,255,255,0.9)"
-            borderRadius="$4"
+            backgroundColor="rgba(255,255,255,0.95)"
+            borderRadius="$6"
             padding="$3"
             fontSize={isSmallDevice ? 14 : 16}
             borderWidth={0}
             placeholderTextColor="#666"
-            focusStyle={{
-              borderWidth: 1,
-              borderColor: '#FF6B35',
-            }}
+            focusStyle={{ borderWidth: 1, borderColor: '#FF6B35' }}
+            paddingHorizontal={isSmallDevice ? '$2' : '$3'}
           />
         ),
         headerRight: () => (
           <Button
             size="$5"
             circular
-            onPress={() => {
-              setShowSearch(false);
-              setSearchQuery('');
-            }}
+            onPress={() => { setShowSearch(false); setSearchQuery(''); }}
             icon={<CloseIcon />}
-            backgroundColor="rgba(255,255,255,0.2)"
-            hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
+            backgroundColor="rgba(255,255,255,0.25)"
+            hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.35)' }}
             pressStyle={{ backgroundColor: 'rgba(255,255,255,0.4)' }}
             animation="quick"
           />
@@ -116,8 +110,8 @@ export default function RecipeList() {
             circular
             onPress={() => setShowSearch(true)}
             icon={<SearchIcon />}
-            backgroundColor="rgba(255,255,255,0.2)"
-            hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
+            backgroundColor="rgba(255,255,255,0.25)"
+            hoverStyle={{ backgroundColor: 'rgba(255,255,255,0.35)' }}
             pressStyle={{ backgroundColor: 'rgba(255,255,255,0.4)' }}
             animation="quick"
           />
@@ -130,13 +124,7 @@ export default function RecipeList() {
     try {
       setLoading(true);
       const { recipes: newRecipes, total: totalCount } = await recipeApi.getAll(pageNum, 10);
-      
-      if (shouldAppend) {
-        setRecipes(prev => [...prev, ...newRecipes]);
-      } else {
-        setRecipes(newRecipes);
-      }
-      
+      shouldAppend ? setRecipes(prev => [...prev, ...newRecipes]) : setRecipes(newRecipes);
       setTotal(totalCount);
       setHasMore(newRecipes.length > 0 && recipes.length + newRecipes.length < totalCount);
       setError(null);
@@ -155,29 +143,13 @@ export default function RecipeList() {
       setIsSearching(false);
       return;
     }
-
     setIsSearching(true);
     const query = searchQuery.toLowerCase().trim();
-    
-    const filtered = recipes.filter(recipe => {
-      // Search by title
-      if (recipe.title && recipe.title.toLowerCase().includes(query)) {
-        return true;
-      }
-      
-      // Search by tags
-      if (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(query))) {
-        return true;
-      }
-      
-      // Search by description
-      if (recipe.description && recipe.description.toLowerCase().includes(query)) {
-        return true;
-      }
-      
-      return false;
-    });
-    
+    const filtered = recipes.filter(recipe =>
+      (recipe.title && recipe.title.toLowerCase().includes(query)) ||
+      (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(query))) ||
+      (recipe.description && recipe.description.toLowerCase().includes(query))
+    );
     setFilteredRecipes(filtered);
   };
 
@@ -209,101 +181,80 @@ export default function RecipeList() {
   };
 
   const renderRecipeItem = ({ item }: { item: Recipe }) => (
-    <YStack flex={1} alignItems="center" justifyContent="center" padding="$4">
-    <Card elevate bordered padding="$0" marginBottom="$4" overflow="hidden" backgroundColor="$background" width="90%" 
-    >
-      <TouchableOpacity
-        onPress={() => navigation.navigate('RecipeDetail', { id: item.id! })}
-        activeOpacity={0.7}
+    <YStack flex={1} alignItems="center" justifyContent="center" padding={isSmallDevice ? '$3' : '$4'}>
+      <Card elevate bordered padding="$0" marginBottom="$5" overflow="hidden" width={isSmallDevice ? '90%' : '92%'}
+        borderRadius="$8"
+        backgroundColor="white"
+        shadowColor="#000"
+        shadowOpacity={0.15}
+        shadowRadius={10}
+        animation="bouncy"
       >
-        <XStack>
-          <Image
-            source={{ uri: item.imageUrl || 'https://placehold.co/120x120/e2e8f0/6b7280' }}
-            width={180}
-            height={180}
-            resizeMode="cover"
-          />
-          <YStack paddingLeft="$10" paddingTop="$2" flex={1} justifyContent="space-between">
-            <YStack>
-              <XStack justifyContent="space-between">
-                <H4 numberOfLines={1} color="$gray12" marginBottom="$1">
-                {item.title || 'Untitled Recipe'}
-              </H4>
-              <XStack space="$2" padding="$3"  justifyContent="flex-end">
-                <Button
-                  size="$2"
-                  chromeless
-                  onPress={() => navigation.navigate('EditRecipe', { id: item.id! })}
-                  icon={<EditIcon />}
-                  color="$blue10"
+        <TouchableOpacity activeOpacity={0.85}>
+          <XStack>
+            <Image
+              source={{ uri: item.imageUrl || 'https://placehold.co/120x120/e2e8f0/6b7280' }}
+              width={isSmallDevice ? 150 : 180}
+              height={isSmallDevice ? '100%' : 180} // Adjusted to 100% of card height on mobile
+              resizeMode="cover"
+              borderTopLeftRadius={12}
+              borderBottomLeftRadius={12}
+            />
+            <YStack paddingLeft="$5" paddingTop="$3" flex={1} justifyContent="space-between">
+              <YStack>
+                <YStack>
+                  <H4 color="$gray12" marginBottom={isSmallDevice ? '$2' : '$1'} fontWeight="700" fontSize={isSmallDevice ? '$3' : undefined}
+                    numberOfLines={isSmallDevice ? undefined : 1}> {/* Full name on mobile, truncated on web */}
+                    {item.title || 'Untitled Recipe'}
+                  </H4>
+                </YStack>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('RecipeDetail', { id: item.id! })}
+                  activeOpacity={0.7}
                 >
+                  {item.description && (
+                    <Paragraph numberOfLines={2} color="$gray11" fontSize={isSmallDevice ? '$1' : '$2'} marginBottom="$2">
+                      {item.description}
+                    </Paragraph>
+                  )}
+                  {item.tags && item.tags.length > 0 && (
+                    <XStack flexWrap="wrap" marginBottom="$2">
+                      {item.tags.map((tag, index) => (
+                        <Text key={index} backgroundColor="#E6F9EE" color="#026e06" paddingVertical="$1" paddingHorizontal="$2"
+                          borderRadius="$5" fontSize="$3" marginRight="$2" marginBottom="$1" shadowOpacity={0.05}>
+                          #{tag}
+                        </Text>
+                      ))}
+                    </XStack>
+                  )}
+                  <XStack space="$3" alignItems="center" marginBottom="$2">
+                    {item.cookTime && (
+                      <XStack alignItems="center" space="$1">
+                        <ClockIcon />
+                        <Text color="$gray9" fontSize="$4">{item.cookTime.split(' ')[0]}m</Text>
+                      </XStack>
+                    )}
+                    {item.servings > 0 && (
+                      <XStack alignItems="center" space="$1">
+                        <UsersIcon />
+                        <Text color="$gray9" fontSize="$4">{item.servings}</Text>
+                      </XStack>
+                    )}
+                  </XStack>
+                </TouchableOpacity>
+              </YStack>
+              <XStack space={isSmallDevice ? '$1' : '$2'} paddingLeft={isSmallDevice ? '$1' : '$2'} paddingBottom={isSmallDevice ? '$1' : '$2'} justifyContent={isSmallDevice ? 'flex-start' : 'flex-end'}>
+                <Button size="$2" chromeless onPress={() => navigation.navigate('EditRecipe', { id: item.id! })} icon={<EditIcon />}>
                   Edit
                 </Button>
-                <Button
-                  size="$2"
-                  chromeless
-                  onPress={() => handleDeleteRecipe(item.id!)}
-                  icon={<DeleteIcon />}
-                  color="$red10"
-                >
+                <Button size="$2" chromeless onPress={() => handleDeleteRecipe(item.id!)} icon={<DeleteIcon />}>
                   Delete
                 </Button>
               </XStack>
-              </XStack>
-
-              {item.description && (
-                <Paragraph
-                  width={500}
-                  numberOfLines={2} 
-                  color="$gray11" 
-                  fontSize="$3"
-                  marginBottom="$2"
-                >
-                  {item.description}
-                </Paragraph>
-              )}
-              {item.tags && item.tags.length > 0 && (
-                <XStack flexWrap="wrap" marginBottom="$2">
-                  {item.tags.map((tag, index) => (
-                    <Text 
-                      key={index}
-                      backgroundColor="$green4" 
-                      color="#026e06" 
-                      paddingVertical="$1" 
-                      borderRadius="$2"
-                      fontSize="$4"
-                      marginRight="$2"
-                      marginBottom="$1"
-                    >#
-                      {tag}
-                    </Text>
-                  ))}
-                </XStack>
-              )}
-              <XStack space="$3" alignItems="center">
-              {item.cookTime && (
-                <XStack alignItems="center" space="$1">
-                  <ClockIcon />
-                  <Text color="$gray9" fontSize="$4">{item.cookTime.split(' ')[0]}m</Text>
-                </XStack>
-              )}
-              {item.servings > 0 && (
-                <XStack alignItems="center" space="$1">
-                  <UsersIcon />
-                  <Text color="$gray9" fontSize="$4">{item.servings}</Text>
-                </XStack>
-              )}
-            </XStack>
-              
             </YStack>
-            
-            
-          </YStack>
-        </XStack>
-      </TouchableOpacity>
-      
-      
-    </Card>
+          </XStack>
+        </TouchableOpacity>
+      </Card>
     </YStack>
   );
 
@@ -316,44 +267,28 @@ export default function RecipeList() {
         </YStack>
       );
     }
-    
     if (hasMore && !isSearching) {
       return (
-        <Button 
-          onPress={loadMoreRecipes} 
-          marginVertical="$4"
-          alignSelf="center"
-          icon={<AddIcon />}
-          backgroundColor="$blue8"
-          color="white"
-        >
-          Load More Recipes
-        </Button>
+        <Button onPress={loadMoreRecipes} marginVertical="$5" alignSelf="center" icon={<AddIcon />}
+          backgroundColor="#4A90E2" color="white" borderRadius="$8"
+          hoverStyle={{ backgroundColor: '#5AA0F2', transform: [{ scale: 1.05 }] }}
+          pressStyle={{ backgroundColor: '#3A7AD2', transform: [{ scale: 0.95 }] }}
+          shadowColor="#000" shadowOpacity={0.2} shadowRadius={6}
+        >Load More Recipes</Button>
       );
     }
-    
     if (recipes.length > 0 && isSearching && filteredRecipes.length === 0) {
-      return (
-        <Text textAlign="center" color="$gray9" marginVertical="$4">
-          No recipes found matching your search.
-        </Text>
-      );
+      return <Text textAlign="center" color="$gray9" marginVertical="$4">No recipes found matching your search.</Text>;
     }
-    
     if (recipes.length > 0 && !isSearching) {
-      return (
-        <Text textAlign="center" color="$gray9" marginVertical="$4">
-          You've reached the end of your recipes!
-        </Text>
-      );
+      return <Text textAlign="center" color="$gray9" marginVertical="$4">✨ You've reached the end of your recipes!</Text>;
     }
-    
     return null;
   };
 
   if (loading && recipes.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '$background' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F9FB' }}>
         <YStack space="$4" alignItems="center">
           <Spinner size="large" color="$blue10" />
           <H4 color="$gray11">Loading your recipes...</H4>
@@ -364,99 +299,42 @@ export default function RecipeList() {
 
   if (error && recipes.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '$background' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F9FB' }}>
         <YStack space="$4" alignItems="center" padding="$4">
           <H4 color="$red10">Error loading recipes</H4>
           <Paragraph color="$gray11" textAlign="center">{error}</Paragraph>
-          <Button onPress={() => loadRecipes(1, false)} marginTop="$4">
-            Try Again
-          </Button>
+          <Button onPress={() => loadRecipes(1, false)} marginTop="$4" backgroundColor="#FF6B35" color="white" borderRadius="$6" shadowOpacity={0.2}>Try Again</Button>
         </YStack>
       </View>
     );
   }
 
   return (
-    <YStack padding="$4" flex={1} backgroundColor="$gray2" >
-      <XStack justifyContent="center" alignItems="center" marginBottom="$4">
+    <YStack padding="$4" flex={1} backgroundColor="#F8F9FB">
+      <XStack justifyContent="center" alignItems="center" marginBottom="$5">
         <YStack flex={1} alignItems='center'>
-          <H2 color="$gray12">My Recipes</H2>
-          <Text color="$gray9">
-            {isSearching 
-              ? `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found` 
-              : `${total} recipe${total !== 1 ? 's' : ''}`
-            }
-          </Text>
+          <H2 color="$gray12" fontWeight="800" marginBottom="$1">My Recipes</H2>
+          <Text color="$gray9">{isSearching ? `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found` : `${total} recipe${total !== 1 ? 's' : ''}`}</Text>
         </YStack>
-        {/* Enhanced Add Recipe Button */}
-        <Button
-          onPress={() => navigation.navigate('AddRecipe')}
-          backgroundColor="#FF6B35"
-          color="white"
-          borderRadius="$6"
-          paddingHorizontal="$4"
-          height="$4.5"
-          fontSize="$5"
-          fontWeight="700"
-          icon={<AddIcon />}
-          shadowColor="#000"
-          shadowOffset={{ width: 0, height: 4 }}
-          shadowOpacity={0.2}
-          shadowRadius={8}
-          animation="quick"
-          hoverStyle={{ 
-            transform: [{ scale: 1.05 }],
-            backgroundColor: '#FF8E53',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.3,
-          }}
-          pressStyle={{ 
-            transform: [{ scale: 0.95 }],
-            backgroundColor: '#E55A2B'
-          }}
-        >
-          Add Recipe
-        </Button>
+        <Button onPress={() => navigation.navigate('AddRecipe')} backgroundColor="#FF6B35" color="white"
+          borderRadius="$8" paddingHorizontal="$8" paddingVertical="$8" height="$5" fontSize="$5" fontWeight="700"
+          icon={<AddIcon />} shadowColor="#000" shadowOpacity={0.25} shadowRadius={8}
+          hoverStyle={{ transform: [{ scale: 1.05 }], backgroundColor: '#FF8E53' }}
+          pressStyle={{ transform: [{ scale: 0.95 }], backgroundColor: '#E55A2B' }}
+        >Add Recipe</Button>
       </XStack>
 
       {recipes.length === 0 ? (
-        <Card elevate bordered padding="$6" alignItems="center" marginTop="$8">
-          <Text fontSize="$8" marginBottom="$3">🍳</Text>
-          <H4 color="$gray11" textAlign="center" marginBottom="$2">
-            No recipes yet
-          </H4>
-          <Paragraph color="$gray9" textAlign="center" marginBottom="$4">
-            Start by adding your first delicious recipe!
-          </Paragraph>
-          {/* Enhanced Create Recipe Button */}
-          <Button
-            onPress={() => navigation.navigate('AddRecipe')}
-            backgroundColor="#FF6B35"
-            color="white"
-            borderRadius="$6"
-            paddingHorizontal="$5"
-            height="$4.5"
-            fontSize="$5"
-            fontWeight="700"
-            icon={<AddIcon />}
-            shadowColor="#000"
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowOpacity={0.2}
-            shadowRadius={8}
-            animation="quick"
-            hoverStyle={{ 
-              transform: [{ scale: 1.05 }],
-              backgroundColor: '#FF8E53',
-              shadowOffset: { width: 0, height: 6 },
-              shadowOpacity: 0.3,
-            }}
-            pressStyle={{ 
-              transform: [{ scale: 0.95 }],
-              backgroundColor: '#E55A2B'
-            }}
-          >
-            Create Your First Recipe
-          </Button>
+        <Card elevate bordered padding="$6" alignItems="center" marginTop="$8" borderRadius="$8" shadowOpacity={0.1}>
+          <Text fontSize="$9" marginBottom="$3">🍳</Text>
+          <H4 color="$gray11" textAlign="center" marginBottom="$2">No recipes yet</H4>
+          <Paragraph color="$gray9" textAlign="center" marginBottom="$4">Start by adding your first delicious recipe!</Paragraph>
+          <Button onPress={() => navigation.navigate('AddRecipe')} backgroundColor="#FF6B35" color="white"
+            borderRadius="$8" paddingHorizontal="$6" height="$5" fontSize="$5" fontWeight="700"
+            icon={<AddIcon />} shadowOpacity={0.2}
+            hoverStyle={{ transform: [{ scale: 1.05 }], backgroundColor: '#FF8E53' }}
+            pressStyle={{ transform: [{ scale: 0.95 }], backgroundColor: '#E55A2B' }}
+          >Create Your First Recipe</Button>
         </Card>
       ) : (
         <FlatList
@@ -466,13 +344,7 @@ export default function RecipeList() {
           onEndReached={isSearching ? undefined : loadMoreRecipes}
           onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor="#FF6B35"
-            />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FF6B35" />}
           showsVerticalScrollIndicator={false}
         />
       )}

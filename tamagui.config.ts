@@ -1,53 +1,90 @@
-import { createTamagui } from 'tamagui'
+import { createTamagui, createFont } from '@tamagui/core';
+
+// Create a font configuration with trendy sizes
+const defaultFont = createFont({
+  family: 'System, -apple-system, Roboto, Helvetica, Arial, sans-serif',
+  size: {
+    1: 12,
+    2: 14,
+    3: 16,
+    4: 18,
+    5: 20,
+    6: 24,
+    7: 28,
+    8: 32,
+    9: 36,
+    10: 40,
+    12: 48, // Larger for bold headings
+    true: 16,
+  },
+  lineHeight: {
+    1: 16,
+    2: 20,
+    3: 24,
+    4: 28,
+    5: 32,
+    6: 36,
+    7: 40,
+    8: 44,
+    9: 48,
+    10: 52,
+    true: 24,
+  },
+  weight: {
+    1: '400',
+    2: '500',
+    3: '600',
+    4: '700',
+    5: '800',
+    6: '900',
+    bold: '700',
+    true: '400',
+  },
+});
 
 const config = createTamagui({
+  defaultFont: 'body',
+  fonts: {
+    body: defaultFont,
+    heading: defaultFont,
+  },
   themes: {
     light: {
-      background: '#ffffff',
-      color: '#000000',
-      gray1: '#f8f9fa',
-      gray2: '#e9ecef',
-      gray3: '#dee2e6',
-      gray4: '#ced4da',
-      gray5: '#adb5bd',
-      gray6: '#6c757d',
-      gray7: '#495057',
-      gray8: '#343a40',
-      gray9: '#212529',
-      gray10: '#1a1d21',
-      gray11: '#14171a',
-      gray12: '#0e1013',
-      blue1: '#cfe2ff',
-      blue2: '#9ec5fe',
-      blue3: '#6ea8fe',
-      blue4: '#3d8bfd',
-      blue5: '#0d6efd',
-      blue6: '#0a58ca',
-      blue7: '#084298',
-      blue8: '#052c65',
-      blue9: '#031633',
-      blue10: '#021027',
-      red9: '#dc3545',
-      red10: '#bd2130',
+      background: '#FFFFFF',
+      color: '#212121',
+      teal: '#26A69A',
+      purple: '#AB47BC',
+      gradientStart: '#26A69A',
+      gradientEnd: '#AB47BC',
+      gray1: '#F5F5F5',
+      gray3: '#E0E0E0',
+      gray8: '#757575',
+      border: '#E0E0E0',
     },
     dark: {
-      // Add similar dark theme values
-      background: '#000000',
-      color: '#ffffff',
-      // ... other dark theme colors
+      background: '#121212',
+      color: '#FFFFFF',
+      teal: '#26A69A',
+      purple: '#AB47BC',
+      gradientStart: '#1E7D74',
+      gradientEnd: '#8E24AA',
+      gray1: '#333333',
+      gray3: '#424242',
+      gray8: '#B0BEC5',
+      border: '#424242',
     },
   },
   tokens: {
     color: {
-      // Include all color tokens from the theme
-      white: '#fff',
-      black: '#000',
-      gray1: '#f8f9fa',
-      gray2: '#e9ecef',
-      // ... all other colors
+      white: '#FFFFFF',
+      black: '#000000',
+      teal: '$teal',
+      purple: '$purple',
+      gray1: '$gray1',
+      gray3: '$gray3',
+      gray8: '$gray8',
     },
     space: {
-      0: 0,
       1: 4,
       2: 8,
       3: 12,
@@ -56,12 +93,9 @@ const config = createTamagui({
       6: 24,
       7: 28,
       8: 32,
-      9: 36,
-      10: 40,
       true: 4,
     },
     size: {
-      0: 0,
       1: 4,
       2: 8,
       3: 12,
@@ -70,89 +104,64 @@ const config = createTamagui({
       6: 24,
       7: 28,
       8: 32,
-      9: 36,
-      10: 40,
       true: 4,
     },
     radius: {
-      0: 0,
-      1: 3,
-      2: 6,
-      3: 9,
-      4: 12,
-      5: 15,
-      6: 20,
-      7: 25,
-      8: 30,
-      9: 35,
-      10: 40,
-      true: 3,
+      4: 8,
+      5: 10,
+      6: 12,
+      8: 16,
+      true: 8,
     },
     zIndex: {
-      0: 0,
       1: 100,
       2: 200,
-      3: 300,
-      4: 400,
-      5: 500,
       true: 100,
     },
   },
-  fonts: {
-    body: {
-      family: 'System',
-      size: {
-        1: 12,
-        2: 14,
-        3: 16,
-        4: 18,
-        5: 20,
-        6: 24,
-        7: 28,
-        8: 32,
-        9: 36,
-        10: 40,
-        true: 16,
+  
+  components: {
+    Button: {
+      variants: {
+        link: {
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          color: '$purple',
+          textDecorationLine: 'underline',
+          hoverStyle: { color: '$gradientEnd' },
+        },
+        outlined: {
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: '$teal',
+          color: '$teal',
+          hoverStyle: { backgroundColor: '$gray1' },
+        },
       },
-      lineHeight: {
-        1: 16,
-        2: 20,
-        3: 24,
-        4: 28,
-        5: 32,
-        6: 36,
-        7: 40,
-        8: 44,
-        9: 48,
-        10: 52,
-        true: 24,
-      },
-      weight: {
-        1: '400',
-        2: '500',
-        3: '600',
-        4: '700',
-        5: '800',
-        6: '900',
-        true: '400',
-      },
-      letterSpacing: {
-        0: 0,
-        1: 1,
-        2: 2,
-        3: 3,
-        4: 4,
-        5: 5,
-        true: 0,
+    },
+    Input: {
+      variants: {
+        default: {
+          backgroundColor: '$gray1',
+          shadowColor: '$gray3',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
       },
     },
   },
-})
+});
 
-export type AppConfig = typeof config
+export type AppConfig = typeof config;
 
 declare module 'tamagui' {
-  interface TamaguiCustomConfig extends AppConfig {}
+  interface TamaguiCustomConfig extends AppConfig {
+    animations: {
+      bouncy: { type: 'spring'; damping: number; mass: number; stiffness: number };
+      quick: { type: 'timing'; duration: number };
+    };
+  }
 }
 
-export default config
+export default config;
